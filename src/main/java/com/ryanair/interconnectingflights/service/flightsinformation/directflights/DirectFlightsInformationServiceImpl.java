@@ -31,22 +31,20 @@ public class DirectFlightsInformationServiceImpl implements DirectFlightsInforma
 
         List<Legs> legs = new ArrayList<>();
 
-        if (!directFlights.isEmpty()) {
-            for (Flights directFlight : directFlights) {
-                Legs leg = parseLegs(directFlight, departure, arrival, departureDateTime);
+        for (Flights directFlight : directFlights) {
+            Legs leg = parseLegs(directFlight, departure, arrival, departureDateTime);
 
-                legs.add(leg);
-            }
-
-            return parseDirectFlightsInformation(legs);
+            legs.add(leg);
         }
 
-        return null;
+        return parseDirectFlightsInformation(legs);
     }
 
     private List<Flights> getDirectFlights(String departure, String arrival, String departureDateTime, String arrivalDateTime) {
-        Schedules directSchedules =
-                schedulesProvider.getSchedules(departure, arrival, departureDateTime, arrivalDateTime);
+        String monthOfFlight = getMonthOfFlight(departureDateTime);
+        String yearOfFlight = getYearOfFlight(departureDateTime);
+
+        Schedules directSchedules = schedulesProvider.getSchedules(departure, arrival, monthOfFlight, yearOfFlight);
 
         filterSchedules(directSchedules, departureDateTime, arrivalDateTime);
 
@@ -63,6 +61,20 @@ public class DirectFlightsInformationServiceImpl implements DirectFlightsInforma
         } else {
             return new ArrayList<>();
         }
+    }
+
+    private String getMonthOfFlight(String departureDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        LocalDateTime parsedDepartureDateTime = LocalDateTime.parse(departureDateTime, formatter);
+
+        return String.valueOf(parsedDepartureDateTime.getMonthValue());
+    }
+
+    private String getYearOfFlight(String departureDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        LocalDateTime parsedDepartureDateTime = LocalDateTime.parse(departureDateTime, formatter);
+
+        return String.valueOf(parsedDepartureDateTime.getYear());
     }
 
     private void filterSchedules(Schedules schedules, String departureDateTime, String arrivalDateTime) {
