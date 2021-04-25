@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class FlightsInformation {
     private Integer stops;
-    private List<Legs> legsList;
+    private List<Legs> legs;
 }

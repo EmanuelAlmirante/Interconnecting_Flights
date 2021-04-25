@@ -64,26 +64,15 @@ public class DirectFlightsInformationServiceImpl implements DirectFlightsInforma
     }
 
     private String getMonthOfFlight(String departureDateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        LocalDateTime parsedDepartureDateTime = LocalDateTime.parse(departureDateTime, formatter);
+        LocalDateTime parsedDepartureDateTime = parseDate(departureDateTime);
 
         return String.valueOf(parsedDepartureDateTime.getMonthValue());
     }
 
     private String getYearOfFlight(String departureDateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        LocalDateTime parsedDepartureDateTime = LocalDateTime.parse(departureDateTime, formatter);
+        LocalDateTime parsedDepartureDateTime = parseDate(departureDateTime);
 
         return String.valueOf(parsedDepartureDateTime.getYear());
-    }
-
-    private void filterSchedules(Schedules schedules, String departureDateTime, String arrivalDateTime) {
-        LocalDateTime parsedDepartureDateTime = parseDate(departureDateTime);
-        LocalDateTime parsedArrivalDateTime = parseDate(arrivalDateTime);
-
-        filterSchedulesByDayOfDeparture(schedules, parsedDepartureDateTime, parsedArrivalDateTime);
-        filterSchedulesByTimeOfDepartureAndTimeOfArrival(schedules, parsedDepartureDateTime, parsedArrivalDateTime);
-        filterSchedulesByEmptyFlights(schedules);
     }
 
     private LocalDateTime parseDate(String date) {
@@ -92,13 +81,24 @@ public class DirectFlightsInformationServiceImpl implements DirectFlightsInforma
         return LocalDateTime.parse(date, formatter);
     }
 
-    private void filterSchedulesByDayOfDeparture(Schedules schedules, LocalDateTime parsedDepartureDateTime, LocalDateTime parsedArrivalDateTime) {
+    private void filterSchedules(Schedules schedules, String departureDateTime, String arrivalDateTime) {
+        LocalDateTime parsedDepartureDateTime = parseDate(departureDateTime);
+        LocalDateTime parsedArrivalDateTime = parseDate(arrivalDateTime);
+
+        filterSchedulesByDayOfDeparture(schedules, parsedDepartureDateTime);
+        filterSchedulesByTimeOfDepartureAndTimeOfArrival(schedules, parsedDepartureDateTime, parsedArrivalDateTime);
+        filterSchedulesByEmptyFlights(schedules);
+    }
+
+    private void filterSchedulesByDayOfDeparture(Schedules schedules, LocalDateTime parsedDepartureDateTime) {
         int departureDay = parsedDepartureDateTime.getDayOfMonth();
 
         schedules.getDaysList().removeIf(days -> days.getDay() != departureDay);
     }
 
-    private void filterSchedulesByTimeOfDepartureAndTimeOfArrival(Schedules schedules, LocalDateTime parsedDepartureDateTime, LocalDateTime parsedArrivalDateTime) {
+    private void filterSchedulesByTimeOfDepartureAndTimeOfArrival(Schedules schedules,
+                                                                  LocalDateTime parsedDepartureDateTime,
+                                                                  LocalDateTime parsedArrivalDateTime) {
         int departureDay = parsedDepartureDateTime.getDayOfMonth();
         int arrivalDay = parsedArrivalDateTime.getDayOfMonth();
 
@@ -147,7 +147,7 @@ public class DirectFlightsInformationServiceImpl implements DirectFlightsInforma
         FlightsInformation flightsInformation = new FlightsInformation();
 
         flightsInformation.setStops(0);
-        flightsInformation.setLegsList(legs);
+        flightsInformation.setLegs(legs);
 
         return flightsInformation;
     }
