@@ -1,0 +1,5 @@
+routes:
+  url: "https://services-api.ryanair.com/locate/3/routes"
+
+schedules:
+  url: "https://timtbl-api.ryanair.com/3/schedules/{0}/{1}/years/{2}/months/{3}"
